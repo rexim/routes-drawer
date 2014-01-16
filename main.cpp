@@ -19,6 +19,39 @@ using AdjacencyList =
 using VertexList =
     std::map<int32_t, std::tuple<double, double> >;
 
+struct BoundingBox
+{
+	BoundingBox(double minx, double miny,
+				double maxx, double maxy):
+		minx(minx), miny(miny),
+		maxx(maxx), maxy(maxy)
+	{}
+
+	double minx;
+	double miny;
+	double maxx;
+	double maxy;
+};
+
+BoundingBox get_bounding_box(const VertexList &vertex_list)
+{
+	BoundingBox result(std::numeric_limits<double>::max(),
+					   std::numeric_limits<double>::max(),
+					   std::numeric_limits<double>::min(),
+					   std::numeric_limits<double>::min());
+
+	for (const auto &vertex: vertex_list) {
+		double x, y;
+		std::tie(x, y) = std::get<1>(vertex);
+		result.minx = std::min(result.minx, x);
+		result.miny = std::min(result.miny, y);
+		result.maxx = std::max(result.maxx, x);
+		result.maxy = std::max(result.maxy, y);
+	}
+
+	return result;
+}
+
 template <typename Type>
 Type read_value(std::istream *is)
 {
@@ -65,43 +98,30 @@ void read_adjacency_list(std::istream *is, AdjacencyList *adjacency_list)
     }
 }
 
-void read_vertex_list(std::istream *is, VertexList *vertex_list,
-                      double &minx, double &miny,
-                      double &maxx, double &maxy)
+void read_vertex_list(std::istream *is, VertexList *vertex_list)
 {
-    minx = std::numeric_limits<double>::max();
-    miny = std::numeric_limits<double>::max();
-    maxx = std::numeric_limits<double>::min();
-    maxy = std::numeric_limits<double>::min();
-
     int32_t n = read_value<int32_t>(is);
 
     for (int32_t i = 0; i < n; ++i) {
         int32_t u = read_value<int32_t>(is);
         skip<int64_t>(is);
-        double x = read_value<double>(is) * 0.01;
-        double y = read_value<double>(is) * 0.01;
+        double x = read_value<double>(is) * 0.02;
+        double y = read_value<double>(is) * 0.02;
 
         (*vertex_list)[u] = std::make_tuple(x, y);
-        minx = std::min(minx, x);
-        miny = std::min(miny, y);
-        maxx = std::max(maxx, x);
-        maxy = std::max(maxy, y);
     }
-
-	minx -= 10; maxx += 10;
-	miny -= 10; maxy += 10;
 }
 
 void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
 							const VertexList &vertex_list,
-							double minx, double miny, double maxx, double maxy,
 							const char *png_filename)
 {
+	auto bbox = get_bounding_box(vertex_list);
+
 	auto surface = std::shared_ptr<cairo_surface_t>(
-		cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-								   maxx - minx,
-								   maxy - miny),
+		cairo_image_surface_create(CAIRO_FORMAT_RGB24,
+								   bbox.maxx - bbox.minx,
+								   bbox.maxy - bbox.miny),
 		cairo_surface_destroy);
 
 	auto cr = std::shared_ptr<cairo_t>(
@@ -132,8 +152,8 @@ void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
 				std::cout << "Wrong type" << std::endl;
 			}
 
-			cairo_move_to(cr.get(), std::get<0>(u) - minx, std::get<1>(u) - miny);
-			cairo_line_to(cr.get(), std::get<0>(v) - minx, std::get<1>(v) - miny);
+			cairo_move_to(cr.get(), std::get<0>(u) - bbox.minx, std::get<1>(u) - bbox.miny);
+			cairo_line_to(cr.get(), std::get<0>(v) - bbox.minx, std::get<1>(v) - bbox.miny);
 			cairo_stroke(cr.get());
 		}
 	}
@@ -157,12 +177,9 @@ int main(int argc, char *argv[])
         read_adjacency_list(&fin, &adjacency_list);
 
         VertexList vertex_list;
-        double minx, miny, maxx, maxy;
-        read_vertex_list(&fin, &vertex_list, minx, miny, maxx, maxy);
+        read_vertex_list(&fin, &vertex_list);
 
-        dump_graph_to_png_file(adjacency_list, vertex_list,
-							   minx, miny, maxx, maxy,
-							   argv[2]);
+        dump_graph_to_png_file(adjacency_list, vertex_list, argv[2]);
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
