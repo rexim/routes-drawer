@@ -88,6 +88,57 @@ void read_vertex_list(std::istream *is, VertexList *vertex_list,
         maxx = std::max(maxx, x);
         maxy = std::max(maxy, y);
     }
+
+	minx -= 10; maxx += 10;
+	miny -= 10; maxy += 10;
+}
+
+void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
+							const VertexList &vertex_list,
+							double minx, double miny, double maxx, double maxy,
+							const char *png_filename)
+{
+	auto surface = std::shared_ptr<cairo_surface_t>(
+		cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+								   maxx - minx,
+								   maxy - miny),
+		cairo_surface_destroy);
+
+	auto cr = std::shared_ptr<cairo_t>(
+		cairo_create(surface.get()),
+		cairo_destroy);
+
+
+	cairo_set_line_width(cr.get(), 1.0);
+
+	for (const auto &edge: adjacency_list) {
+		auto u = vertex_list.at(std::get<0>(edge));
+		for (const auto &vertex: std::get<1>(edge)) {
+			auto v = vertex_list.at(std::get<0>(vertex));
+			switch (std::get<1>(vertex)) {
+			case 0:
+				cairo_set_source_rgb(cr.get(), 1.0, 0.0, 0.0);
+				break;
+
+			case 1:
+				cairo_set_source_rgb(cr.get(), 0.0, 1.0, 0.0);
+				break;
+
+			case 2:
+				cairo_set_source_rgb(cr.get(), 0.0, 0.0, 1.0);
+				break;
+
+			default:
+				std::cout << "Wrong type" << std::endl;
+			}
+
+			cairo_move_to(cr.get(), std::get<0>(u) - minx, std::get<1>(u) - miny);
+			cairo_line_to(cr.get(), std::get<0>(v) - minx, std::get<1>(v) - miny);
+			cairo_stroke(cr.get());
+		}
+	}
+
+	cairo_surface_write_to_png(surface.get(), png_filename);
 }
 
 int main(int argc, char *argv[])
@@ -109,56 +160,9 @@ int main(int argc, char *argv[])
         double minx, miny, maxx, maxy;
         read_vertex_list(&fin, &vertex_list, minx, miny, maxx, maxy);
 
-        minx -= 10;
-        miny -= 10;
-        maxx += 10;
-        maxy += 10;
-
-        std::cout << vertex_list.size() << std::endl;
-        std::cout << maxx - minx << std::endl;
-        std::cout << maxy - miny << std::endl;
-
-        auto surface = std::shared_ptr<cairo_surface_t>(
-            cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                       maxx - minx,
-                                       maxy - miny),
-            cairo_surface_destroy);
-
-        auto cr = std::shared_ptr<cairo_t>(
-            cairo_create(surface.get()),
-            cairo_destroy);
-
-
-        cairo_set_line_width(cr.get(), 2.0);
-
-        for (const auto &edge: adjacency_list) {
-            auto u = vertex_list[std::get<0>(edge)];
-            for (const auto &vertex: std::get<1>(edge)) {
-                auto v = vertex_list[std::get<0>(vertex)];
-                switch (std::get<1>(vertex)) {
-                case 0:
-                    cairo_set_source_rgb(cr.get(), 1.0, 0.0, 0.0);
-                    break;
-
-                case 1:
-                    cairo_set_source_rgb(cr.get(), 0.0, 1.0, 0.0);
-                    break;
-
-                case 2:
-                    cairo_set_source_rgb(cr.get(), 0.0, 0.0, 1.0);
-                    break;
-
-                default:
-                    std::cout << "Wrong type" << std::endl;
-                }
-                cairo_move_to(cr.get(), std::get<0>(u) - minx, std::get<1>(u) - miny);
-                cairo_line_to(cr.get(), std::get<0>(v) - minx, std::get<1>(v) - miny);
-                cairo_stroke(cr.get());
-            }
-        }
-
-        cairo_surface_write_to_png(surface.get(), argv[2]);
-        
+        dump_graph_to_png_file(adjacency_list, vertex_list,
+							   minx, miny, maxx, maxy,
+							   argv[2]);
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
