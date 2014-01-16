@@ -13,11 +13,54 @@
 
 #include <cairo.h>
 
+struct Way
+{
+	Way():
+		destination(0),
+		path_id(0),
+		type(0),
+		weight(0)
+	{}
+
+	int32_t destination;
+	int64_t path_id;
+	int32_t type;
+	int32_t weight;
+};
+
+struct Vertex
+{
+	Vertex():
+		station_id(0),
+		x(0.0),
+		y(0.0)
+	{}
+
+	int64_t station_id;
+	double x;
+	double y;
+};
+
 using AdjacencyList =
-    std::map<int32_t, std::list<std::tuple<int32_t, int32_t> > >;
+    std::map<int32_t, std::list<Way> >;
 
 using VertexList =
-    std::map<int32_t, std::tuple<double, double> >;
+    std::map<int32_t, Vertex>;
+
+struct RoutingHeader
+{
+	RoutingHeader():
+		transfer_time(0),
+		pedestrian_speed(0.0),
+		convertion_ratio(0.0),
+		max_distance(0)
+	{}
+
+	int32_t transfer_time;
+	double pedestrian_speed;
+	double convertion_ratio;
+	int32_t max_distance;
+};
 
 struct BoundingBox
 {
@@ -40,13 +83,13 @@ BoundingBox get_bounding_box(const VertexList &vertex_list)
 					   std::numeric_limits<double>::min(),
 					   std::numeric_limits<double>::min());
 
-	for (const auto &vertex: vertex_list) {
-		double x, y;
-		std::tie(x, y) = std::get<1>(vertex);
-		result.minx = std::min(result.minx, x);
-		result.miny = std::min(result.miny, y);
-		result.maxx = std::max(result.maxx, x);
-		result.maxy = std::max(result.maxy, y);
+	for (const auto &vertex_element: vertex_list) {
+		Vertex vertex;
+		std::tie(std::ignore, vertex) = vertex_element;
+		result.minx = std::min(result.minx, vertex.x);
+		result.miny = std::min(result.miny, vertex.y);
+		result.maxx = std::max(result.maxx, vertex.x);
+		result.maxy = std::max(result.maxy, vertex.y);
 	}
 
 	return result;
@@ -79,6 +122,16 @@ void skip_header(std::istream *is)
     skip<int32_t>(is);
 }
 
+RoutingHeader read_header(std::istream *is)
+{
+	RoutingHeader result;
+	result.transfer_time = read_value<int32_t>(is);
+	result.pedestrian_speed = read_value<double>(is);
+	result.convertion_ratio = read_value<double>(is);
+	result.max_distance = read_value<int32_t>(is);
+	return result;
+}
+
 void read_adjacency_list(std::istream *is, AdjacencyList *adjacency_list)
 {
     int32_t n = read_value<int32_t>(is);
@@ -87,13 +140,14 @@ void read_adjacency_list(std::istream *is, AdjacencyList *adjacency_list)
         int32_t m = read_value<int32_t>(is);
 
         for (int32_t j = 0; j < m; ++j) {
-            int32_t v = read_value<int32_t>(is);
-            skip<int64_t>(is);
-            int32_t t = read_value<int32_t>(is);
+			Way way;
 
-            (*adjacency_list)[u].push_back(std::make_tuple(v, t));
+			way.destination = read_value<int32_t>(is);
+			way.path_id = read_value<int64_t>(is);
+			way.type = read_value<int32_t>(is);
+			way.weight = read_value<int32_t>(is);
 
-            skip<int32_t>(is);
+            (*adjacency_list)[u].push_back(way);
         }
     }
 }
@@ -104,11 +158,13 @@ void read_vertex_list(std::istream *is, VertexList *vertex_list)
 
     for (int32_t i = 0; i < n; ++i) {
         int32_t u = read_value<int32_t>(is);
-        skip<int64_t>(is);
-        double x = read_value<double>(is) * 0.02;
-        double y = read_value<double>(is) * 0.02;
 
-        (*vertex_list)[u] = std::make_tuple(x, y);
+		Vertex vertex;
+		vertex.station_id = read_value<int64_t>(is);
+        vertex.x = read_value<double>(is) * 0.01;
+        vertex.y = read_value<double>(is) * 0.01;
+
+        (*vertex_list)[u] = vertex;
     }
 }
 
@@ -133,9 +189,9 @@ void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
 
 	for (const auto &edge: adjacency_list) {
 		auto u = vertex_list.at(std::get<0>(edge));
-		for (const auto &vertex: std::get<1>(edge)) {
-			auto v = vertex_list.at(std::get<0>(vertex));
-			switch (std::get<1>(vertex)) {
+		for (const auto &way: std::get<1>(edge)) {
+			auto v = vertex_list.at(way.destination);
+			switch (way.type) {
 			case 0:
 				cairo_set_source_rgb(cr.get(), 1.0, 0.0, 0.0);
 				break;
@@ -152,13 +208,21 @@ void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
 				std::cout << "Wrong type" << std::endl;
 			}
 
-			cairo_move_to(cr.get(), std::get<0>(u) - bbox.minx, std::get<1>(u) - bbox.miny);
-			cairo_line_to(cr.get(), std::get<0>(v) - bbox.minx, std::get<1>(v) - bbox.miny);
+			cairo_move_to(cr.get(), u.x - bbox.minx, u.y - bbox.miny);
+			cairo_line_to(cr.get(), v.x - bbox.minx, v.y - bbox.miny);
 			cairo_stroke(cr.get());
 		}
 	}
 
 	cairo_surface_write_to_png(surface.get(), png_filename);
+}
+
+double distance(const Vertex &p1,
+				const Vertex &p2)
+{
+	double dx = p2.x - p1.x;
+	double dy = p2.y - p1.y;
+	return sqrt(dx * dx + dy * dy);
 }
 
 int main(int argc, char *argv[])
@@ -171,7 +235,12 @@ int main(int argc, char *argv[])
     try {
         std::ifstream fin(argv[1],
                           std::ifstream::in | std::ifstream::binary);
-        skip_header(&fin);
+        auto header = read_header(&fin);
+
+		std::cout << header.transfer_time << std::endl;
+		std::cout << header.pedestrian_speed << std::endl;
+		std::cout << header.convertion_ratio << std::endl;
+		std::cout << header.max_distance << std::endl;
 
         AdjacencyList adjacency_list;
         read_adjacency_list(&fin, &adjacency_list);
