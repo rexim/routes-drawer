@@ -217,8 +217,7 @@ void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
 	cairo_surface_write_to_png(surface.get(), png_filename);
 }
 
-double distance(const Vertex &p1,
-				const Vertex &p2)
+double distance(const Vertex &p1, const Vertex &p2)
 {
 	double dx = p2.x - p1.x;
 	double dy = p2.y - p1.y;
@@ -233,14 +232,8 @@ int main(int argc, char *argv[])
     }
 
     try {
-        std::ifstream fin(argv[1],
-                          std::ifstream::in | std::ifstream::binary);
-        auto header = read_header(&fin);
-
-		std::cout << header.transfer_time << std::endl;
-		std::cout << header.pedestrian_speed << std::endl;
-		std::cout << header.convertion_ratio << std::endl;
-		std::cout << header.max_distance << std::endl;
+        std::ifstream fin(argv[1], std::ifstream::in | std::ifstream::binary);
+		auto header = read_header(&fin);
 
         AdjacencyList adjacency_list;
         read_adjacency_list(&fin, &adjacency_list);
