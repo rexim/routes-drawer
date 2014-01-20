@@ -235,6 +235,13 @@ int main(int argc, char *argv[])
         std::ifstream fin(argv[1], std::ifstream::in | std::ifstream::binary);
 		auto header = read_header(&fin);
 
+        std::cout << "----------------------------------------" << std::endl;
+        std::cout << header.transfer_time << std::endl;
+        std::cout << header.pedestrian_speed << std::endl;
+        std::cout << header.convertion_ratio << std::endl;
+        std::cout << header.max_distance << std::endl;
+        std::cout << "----------------------------------------" << std::endl;
+
         AdjacencyList adjacency_list;
         read_adjacency_list(&fin, &adjacency_list);
 
