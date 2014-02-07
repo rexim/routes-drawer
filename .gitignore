@@ -1,3 +1,3 @@
+build/
 *.png
-routing.bin
-routing-drawer
+*.bin
