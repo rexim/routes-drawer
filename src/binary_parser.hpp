@@ -42,7 +42,10 @@ void skip(std::istream *is)
 
 void skip_header(std::istream *is);
 RoutingHeader read_header(std::istream *is);
-void read_adjacency_list(std::istream *is, AdjacencyList *adjacency_list);
-void read_vertex_list(std::istream *is, VertexList *vertex_list);
+void read_adjacency_list(std::istream *is,
+                         AdjacencyList *adjacency_list);
+void read_vertex_list(std::istream *is,
+                      VertexList *vertex_list,
+                      double scale_ratio);
 
 #endif  // BINARY_PARSER_HPP_

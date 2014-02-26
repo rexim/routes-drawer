@@ -58,8 +58,12 @@ void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
                 std::cout << "[WARNING] Wrong arc type" << std::endl;
             }
 
-            cairo_move_to(cr.get(), u->second.x - bbox.minx, u->second.y - bbox.miny);
-            cairo_line_to(cr.get(), v->second.x - bbox.minx, v->second.y - bbox.miny);
+            cairo_move_to(cr.get(),
+                          u->second.x - bbox.minx,
+                          u->second.y - bbox.miny);
+            cairo_line_to(cr.get(),
+                          v->second.x - bbox.minx,
+                          v->second.y - bbox.miny);
             cairo_stroke(cr.get());
         }
     }

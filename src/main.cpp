@@ -6,6 +6,8 @@
 #include "./binary_parser.hpp"
 #include "./graph_dumper.hpp"
 
+#define SCALE_RATIO 0.01
+
 void print_header(std::istream *is, const RoutingHeader &header)
 {
     std::cout << "Transfer Time: " << header.transfer_time << std::endl;
@@ -32,7 +34,7 @@ int main(int argc, char *argv[])
               << adjacency_list.size() << std::endl;
 
     VertexList vertex_list;
-    read_vertex_list(&fin, &vertex_list);
+    read_vertex_list(&fin, &vertex_list, SCALE_RATIO);
 
     std::cout << "Size of Vertex List: " << vertex_list.size() << std::endl;
 

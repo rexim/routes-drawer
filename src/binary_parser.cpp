@@ -45,7 +45,7 @@ void read_adjacency_list(std::istream *is, AdjacencyList *adjacency_list)
     }
 }
 
-void read_vertex_list(std::istream *is, VertexList *vertex_list)
+void read_vertex_list(std::istream *is, VertexList *vertex_list, double scale_ratio)
 {
     int32_t n = read_value<int32_t>(is);
 
@@ -54,8 +54,8 @@ void read_vertex_list(std::istream *is, VertexList *vertex_list)
 
         Vertex vertex;
         vertex.station_id = read_value<int64_t>(is);
-        vertex.x = read_value<double>(is) * 0.01;
-        vertex.y = read_value<double>(is) * 0.01;
+        vertex.x = read_value<double>(is) * scale_ratio;
+        vertex.y = read_value<double>(is) * scale_ratio;
 
         (*vertex_list)[u] = vertex;
     }
