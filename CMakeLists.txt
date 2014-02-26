@@ -1,7 +1,23 @@
 cmake_minimum_required(VERSION 2.8)
 project(routing-drawer)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror -O2 -ggdb")
+include(CheckCXXCompilerFlag REQUIRED)
+
+check_cxx_compiler_flag("-std=c++11" FLAGS_SUPPORT_CXX11)
+if(FLAGS_SUPPORT_CXX11)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wc++11-compat")
+    message(STATUS "Found C++11 support.")
+else(FLAGS_SUPPORT_CXX11)
+    check_cxx_compiler_flag("-std=c++0x" FLAGS_SUPPORT_CXX0X)
+    if(FLAGS_SUPPORT_CXX0X)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wc++0x-compat")
+        message(STATUS "Found C++0x support.")
+    else(FLAGS_SUPPORT_CXX0X)
+        message(SEND_ERROR "No C++0x support.")
+    endif(FLAGS_SUPPORT_CXX0X)
+endif(FLAGS_SUPPORT_CXX11)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -O2 -ggdb")
 
 set(SOURCES
   src/main.cpp
