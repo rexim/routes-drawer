@@ -29,7 +29,8 @@ void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
         auto u = vertex_list.find(std::get<0>(edge));
 
         if (u == vertex_list.end()) {
-            std::cout << "[WARNING] " << std::endl;
+            std::cout << "[WARNING] reference to non-existing vertex "
+                      << std::get<0>(edge) << std::endl;
             continue;
         }
 
@@ -37,7 +38,8 @@ void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
             auto v = vertex_list.find(way.destination);
 
             if (v == vertex_list.end()) {
-                std::cout << "[WARNING] " << std::endl;
+                std::cout << "[WARNING] reference to non-existing vertex "
+                          << way.destination << std::endl;
                 continue;
             }
 
@@ -55,7 +57,7 @@ void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
                 break;
 
             default:
-                std::cout << "[WARNING] Wrong arc type" << std::endl;
+                std::cout << "[WARNING] Wrong type of arc" << std::endl;
             }
 
             cairo_move_to(cr.get(),
