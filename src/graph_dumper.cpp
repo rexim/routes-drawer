@@ -1,10 +1,28 @@
 #include <iostream>
 #include <memory>
+#include <exception>
+#include <stdexcept>
 
 #include <cairo.h>
 
 #include "./geometry.hpp"
 #include "./graph_dumper.hpp"
+
+void check_cairo_surface_status(cairo_surface_t *surface)
+{
+    auto status = cairo_surface_status(surface);
+    if (status != CAIRO_STATUS_SUCCESS) {
+        throw std::runtime_error(cairo_status_to_string(status));
+    }
+}
+
+void check_cairo_status(cairo_t *cr)
+{
+    auto status = cairo_status(cr);
+    if (status != CAIRO_STATUS_SUCCESS) {
+        throw std::runtime_error(cairo_status_to_string(status));
+    }
+}
 
 void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
                             const VertexList &vertex_list,
@@ -12,16 +30,18 @@ void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
 {
     auto bbox = get_aabb(vertex_list);
 
+    double width = bbox.maxx - bbox.minx;
+    double height = bbox.maxy - bbox.miny;
+
     auto surface = std::shared_ptr<cairo_surface_t>(
-        cairo_image_surface_create(CAIRO_FORMAT_RGB24,
-                                   bbox.maxx - bbox.minx,
-                                   bbox.maxy - bbox.miny),
+        cairo_image_surface_create(CAIRO_FORMAT_RGB24, width, height),
         cairo_surface_destroy);
+    check_cairo_surface_status(surface.get());
 
     auto cr = std::shared_ptr<cairo_t>(
         cairo_create(surface.get()),
         cairo_destroy);
-
+    check_cairo_status(cr.get());
 
     cairo_set_line_width(cr.get(), 1.0);
 
@@ -62,10 +82,10 @@ void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
 
             cairo_move_to(cr.get(),
                           u->second.x - bbox.minx,
-                          u->second.y - bbox.miny);
+                          height - (u->second.y - bbox.miny));
             cairo_line_to(cr.get(),
                           v->second.x - bbox.minx,
-                          v->second.y - bbox.miny);
+                          height - (v->second.y - bbox.miny));
             cairo_stroke(cr.get());
         }
     }
