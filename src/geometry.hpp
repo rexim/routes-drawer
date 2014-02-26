@@ -3,9 +3,9 @@
 
 #include "./graph.hpp"
 
-struct BoundingBox
+struct AABB
 {
-	BoundingBox(double minx, double miny,
+	AABB(double minx, double miny,
 				double maxx, double maxy):
 		minx(minx), miny(miny),
 		maxx(maxx), maxy(maxy)
@@ -17,7 +17,7 @@ struct BoundingBox
 	double maxy;
 };
 
-BoundingBox get_bounding_box(const VertexList &vertex_list);
+AABB get_aabb(const VertexList &vertex_list);
 double distance(const Vertex &p1, const Vertex &p2);
 
 #endif  // GEOMETRY_HPP_

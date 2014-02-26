@@ -10,7 +10,7 @@ void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
 							const VertexList &vertex_list,
 							const char *png_filename)
 {
-	auto bbox = get_bounding_box(vertex_list);
+	auto bbox = get_aabb(vertex_list);
 
 	auto surface = std::shared_ptr<cairo_surface_t>(
 		cairo_image_surface_create(CAIRO_FORMAT_RGB24,

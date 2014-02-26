@@ -12,12 +12,12 @@ double distance(const Vertex &p1, const Vertex &p2)
 	return sqrt(dx * dx + dy * dy);
 }
 
-BoundingBox get_bounding_box(const VertexList &vertex_list)
+AABB get_aabb(const VertexList &vertex_list)
 {
-	BoundingBox result(std::numeric_limits<double>::max(),
-					   std::numeric_limits<double>::max(),
-					   std::numeric_limits<double>::min(),
-					   std::numeric_limits<double>::min());
+	AABB result(std::numeric_limits<double>::max(),
+                std::numeric_limits<double>::max(),
+                std::numeric_limits<double>::min(),
+                std::numeric_limits<double>::min());
 
 	for (const auto &vertex_element: vertex_list) {
 		Vertex vertex;
