@@ -8,20 +8,21 @@
 #include "./geometry.hpp"
 #include "./graph_dumper.hpp"
 
-void check_cairo_surface_status(cairo_surface_t *surface)
+void cairo_status_to_exception(cairo_status_t status)
 {
-    auto status = cairo_surface_status(surface);
     if (status != CAIRO_STATUS_SUCCESS) {
         throw std::runtime_error(cairo_status_to_string(status));
     }
 }
 
+void check_cairo_surface_status(cairo_surface_t *surface)
+{
+    cairo_status_to_exception(cairo_surface_status(surface));
+}
+
 void check_cairo_status(cairo_t *cr)
 {
-    auto status = cairo_status(cr);
-    if (status != CAIRO_STATUS_SUCCESS) {
-        throw std::runtime_error(cairo_status_to_string(status));
-    }
+    cairo_status_to_exception(cairo_status(cr));
 }
 
 void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
