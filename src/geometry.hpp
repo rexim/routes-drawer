@@ -5,16 +5,16 @@
 
 struct AABB
 {
-	AABB(double minx, double miny,
-				double maxx, double maxy):
-		minx(minx), miny(miny),
-		maxx(maxx), maxy(maxy)
-	{}
+    AABB(double minx, double miny,
+         double maxx, double maxy):
+        minx(minx), miny(miny),
+        maxx(maxx), maxy(maxy)
+    {}
 
-	double minx;
-	double miny;
-	double maxx;
-	double maxy;
+    double minx;
+    double miny;
+    double maxx;
+    double maxy;
 };
 
 AABB get_aabb(const VertexList &vertex_list);

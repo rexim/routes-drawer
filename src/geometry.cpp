@@ -7,26 +7,26 @@
 
 double distance(const Vertex &p1, const Vertex &p2)
 {
-	double dx = p2.x - p1.x;
-	double dy = p2.y - p1.y;
-	return sqrt(dx * dx + dy * dy);
+    double dx = p2.x - p1.x;
+    double dy = p2.y - p1.y;
+    return sqrt(dx * dx + dy * dy);
 }
 
 AABB get_aabb(const VertexList &vertex_list)
 {
-	AABB result(std::numeric_limits<double>::max(),
+    AABB result(std::numeric_limits<double>::max(),
                 std::numeric_limits<double>::max(),
                 std::numeric_limits<double>::min(),
                 std::numeric_limits<double>::min());
 
-	for (const auto &vertex_element: vertex_list) {
-		Vertex vertex;
-		std::tie(std::ignore, vertex) = vertex_element;
-		result.minx = std::min(result.minx, vertex.x);
-		result.miny = std::min(result.miny, vertex.y);
-		result.maxx = std::max(result.maxx, vertex.x);
-		result.maxy = std::max(result.maxy, vertex.y);
-	}
+    for (const auto &vertex_element: vertex_list) {
+        Vertex vertex;
+        std::tie(std::ignore, vertex) = vertex_element;
+        result.minx = std::min(result.minx, vertex.x);
+        result.miny = std::min(result.miny, vertex.y);
+        result.maxx = std::max(result.maxx, vertex.x);
+        result.maxy = std::max(result.maxy, vertex.y);
+    }
 
-	return result;
+    return result;
 }
