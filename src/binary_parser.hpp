@@ -24,14 +24,18 @@ struct RoutingHeader
 template <typename Type>
 Type read_value(std::istream *is)
 {
-    int n = sizeof(Type);
-    char buffer[n];
+    const int n = sizeof(Type);
+
+    union {
+        Type value;
+        char buffer[n];
+    };
 
     for (int i = n - 1; i >= 0; --i) {
         buffer[i] = is->get();
     }
 
-    return *reinterpret_cast<Type*>(buffer);
+    return value;
 }
 
 template <typename Type>

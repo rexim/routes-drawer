@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(routing-drawer)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror -Wno-unused-variable -Wno-strict-aliasing -O2 -ggdb")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror -O2 -ggdb")
 
 set(SOURCES
   src/main.cpp
