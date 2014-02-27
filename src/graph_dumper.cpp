@@ -8,19 +8,19 @@
 #include "./geometry.hpp"
 #include "./graph_dumper.hpp"
 
-void cairo_status_to_exception(cairo_status_t status)
+static void cairo_status_to_exception(cairo_status_t status)
 {
     if (status != CAIRO_STATUS_SUCCESS) {
         throw std::runtime_error(cairo_status_to_string(status));
     }
 }
 
-void check_cairo_surface_status(cairo_surface_t *surface)
+static void check_cairo_surface_status(cairo_surface_t *surface)
 {
     cairo_status_to_exception(cairo_surface_status(surface));
 }
 
-void check_cairo_status(cairo_t *cr)
+static void check_cairo_status(cairo_t *cr)
 {
     cairo_status_to_exception(cairo_status(cr));
 }
