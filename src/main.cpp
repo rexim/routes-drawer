@@ -1,6 +1,7 @@
 #include <istream>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 
 #include "./graph.hpp"
 #include "./binary_parser.hpp"
@@ -24,6 +25,11 @@ int main(int argc, char *argv[])
     }
 
     std::ifstream fin(argv[1], std::ifstream::in | std::ifstream::binary);
+
+    if (!fin) {
+        throw std::runtime_error("Cannot open file: " + std::string(argv[1]));
+    }
+
     auto header = read_header(&fin);
     print_header(&fin, header);
 

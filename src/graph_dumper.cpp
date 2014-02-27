@@ -91,5 +91,8 @@ void dump_graph_to_png_file(const AdjacencyList &adjacency_list,
         }
     }
 
-    cairo_surface_write_to_png(surface.get(), png_filename);
+    {
+        auto status = cairo_surface_write_to_png(surface.get(), png_filename);
+        cairo_status_to_exception(status);
+    }
 }
