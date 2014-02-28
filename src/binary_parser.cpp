@@ -25,7 +25,7 @@ void read_adjacency_list(std::istream *is, AdjacencyList *adjacency_list)
         int32_t u = read_value<int32_t>(is);
         int32_t m = read_value<int32_t>(is);
 
-        // Ensuring that even empty rows of adjacency list will be
+        // Ensuring that even empty rows of adjacency list are
         // created, so adjacency_list->size() is actual amount of
         // rows.
         if (adjacency_list->find(u) == adjacency_list->end()) {
