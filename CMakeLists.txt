@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(routing-drawer)
+project(routes-drawer)
 
 include(CheckCXXCompilerFlag REQUIRED)
 
@@ -39,5 +39,5 @@ pkg_check_modules(CAIRO REQUIRED cairo)
 include_directories(${CAIRO_INCLUDE_DIRS})
 link_directories(${CAIRO_LIBRARY_DIRS})
 
-add_executable(routing-drawer ${SOURCES} ${HEADERS})
-target_link_libraries(routing-drawer ${CAIRO_LIBRARIES})
+add_executable(routes-drawer ${SOURCES} ${HEADERS})
+target_link_libraries(routes-drawer ${CAIRO_LIBRARIES})

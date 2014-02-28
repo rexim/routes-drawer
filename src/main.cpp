@@ -20,7 +20,7 @@ void print_header(std::istream *is, const RoutingHeader &header)
 int main(int argc, char *argv[])
 {
     if (argc < 3) {
-        std::cerr << "Usage: ./routing-drawer routing.bin map.png" << std::endl;
+        std::cerr << "Usage: ./routes-drawer <binary file> <map.png>" << std::endl;
         return EXIT_FAILURE;
     }
 
